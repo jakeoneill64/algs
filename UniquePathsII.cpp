@@ -3,44 +3,39 @@
 //
 #include <vector>
 #include <unordered_set>
+#include <iostream>
+
+//13594824
+
 
 using namespace std;
 
-class Solution {
+class BruteForceDfs {
 
 private:
-    int dfs(const vector<vector<int>>& grid, unordered_set<int> visited, const int& current){
-        if(current == grid[0].size()*grid.size() - 1)
-            return 1;
+    int dfs(const vector<vector<int>>& grid, unordered_set<int> visited, const int& current, const int& columns){
+        if(grid[current / columns][current % columns])
+            return 0;
+
+        if(current == columns*static_cast<int>(grid.size()) - 1)
+            return !grid[grid.size() - 1][columns - 1];
 
         visited.insert(visited.begin(), current);
 
         int numberPaths{0};
 
         //do not explore if next is blocked, out of grid, or already visited.
-        if(static_cast<int>((current % grid[0].size()) -1 >= 0) &&
-            !grid[static_cast<int>current / grid[0].size()][current % grid[0].size() -1] &&
-            visited.find(current-1) == visited.end()
-            ){
-            numberPaths = dfs(grid, visited, current -1);
-        }
-        if(static_cast<int>(((current + 1) % grid[0].size()) != 0) &&
-           !grid[current / grid[0].size()][current % grid[0].size() +1] &&
+        if(((current + 1) % columns != 0) &&
+           !grid[current / columns][current % columns +1] &&
            visited.find(current+1) == visited.end()
-                ){
-            numberPaths += dfs(grid, visited, current +1);
+           ){
+            numberPaths += dfs(grid, visited, current +1, columns);
         }
-        if(static_cast<int>((current / grid[0].size()) -1) >= 0 &&
-           !grid[(current / grid[0].size()) -1][current % grid[0].size()] &&
-                visited.find(current-grid[0].size()) == visited.end()
-                ){
-            numberPaths += dfs(grid, visited, current -grid[0].size());
-        }
-        if(static_cast<int>((current / grid[0].size()) + 1) < grid.size() &&
-           !grid[(current / grid[0].size()) + 1][current % grid[0].size()] &&
-           visited.find(current+grid[0].size()) == visited.end()
-                ){
-            numberPaths += dfs(grid, visited, current +grid[0].size());
+        if((current / columns) + 1 < grid.size() &&
+           !grid[(current / columns) + 1][current % columns] &&
+           visited.find(current+columns) == visited.end()
+           ){
+            numberPaths += dfs(grid, visited, current +columns, columns);
         }
         return numberPaths;
 
@@ -51,14 +46,14 @@ public:
 
     int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
        unordered_set<int> visited;
-       return dfs(obstacleGrid, visited, 0);
+       return dfs(obstacleGrid, visited, 0, static_cast<int>(obstacleGrid[0].size()));
     }
 };
 
 
 int main(){
-    vector<vector<int>> test{{0,0,0}, {0,1,0}, {0,0,0}};
-    Solution sol{};
-    int result = sol.uniquePathsWithObstacles(test);
-    return 0;
+    vector<vector<int>> test{{0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0},{0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,1,0,0},{1,0,0,0,0,0,1,0,0,0,0,0,1,0,1,1,0,1},{0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0},{0,0,0,0,0,1,0,0,0,0,1,1,0,1,0,0,0,0},{1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0},{0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0},{0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},{1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0},{0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0},{0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0},{0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1},{0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1},{1,0,1,1,0,0,0,0,0,0,1,0,1,0,0,0,1,0},{0,0,0,1,0,0,0,0,1,1,1,0,0,1,0,1,1,0},{0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},{0,1,1,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0},{0,0,0,0,0,0,1,0,1,0,0,1,0,1,1,1,0,0},{0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,1},{0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0},{1,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0},{0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0},{0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,0},{1,0,1,0,1,0,0,0,0,0,0,1,1,0,0,0,0,1},{1,0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0}};
+    BruteForceDfs dfs{};
+    int result = dfs.uniquePathsWithObstacles(test);
+    cout << result << endl;
 }
