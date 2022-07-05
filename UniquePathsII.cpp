@@ -31,6 +31,7 @@ private:
            ){
             numberPaths += dfs(grid, visited, current +1, columns);
         }
+
         if((current / columns) + 1 < grid.size() &&
            !grid[(current / columns) + 1][current % columns] &&
            visited.find(current+columns) == visited.end()
